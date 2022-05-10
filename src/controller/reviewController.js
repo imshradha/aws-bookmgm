@@ -60,7 +60,7 @@ catch(err){
 
 }
 const updateReview=async function(req,res){
-    
+       try{
         const {bookId,reviewId}=req.params 
         let body=req.body
         if(!(isValidObjectId(bookId))){
@@ -84,10 +84,10 @@ const updateReview=async function(req,res){
       let getReviewsData=await reviewModel.find({bookId:bookId})
       Object.assign(validBook._doc, { reviewsData: [getReviewsData] });
       return res.status(200).send({status:true,message:"Review Updated",data:validBook})
-    
-    // catch(err){
-    //     return res.status(500).send({status:false,message:err.message})
-    // }
+       }
+     catch(err){
+         return res.status(500).send({status:false,message:err.message})
+     }
 
 }
 
