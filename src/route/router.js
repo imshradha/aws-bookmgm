@@ -10,7 +10,7 @@ router.post("/register",createUser)
 router.post("/login",loginUser)
 router.post("/books",createBook)
 router.get("/books",getBooks)
-// router.get("/books/:bookId",getId)
+router.get("/books/:bookId",getId)
 // router.put("/books/:bookId",updateBooks)
 // router.delete("/books/:bookId",deleteId)
 

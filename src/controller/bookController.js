@@ -51,7 +51,6 @@ const createBook = async function (req, res) {
         return res.status(400).send({status:false,message:"ISBN is already registered"})
     }
     
-    
     if(!isValidObjectId(userId)){
          return res.status(400).send({status:false,message:"Please provide valid userId"})
      }
@@ -61,20 +60,15 @@ const createBook = async function (req, res) {
          return res.status(400).send({status:false,message:"User id not present"})
      }
     
-    
      if(reviews){
          reviews=`Holds ${reviews} reviews of this book`
      }
-    //releasedAt = new Date(releasedAt)
-    console.log(releasedAt)
+    
     let date1=moment(releasedAt).format("YYYY-MM-DD")
-    console.log(releasedAt)
     body.releasedAt=date1
-
     
     let book=await bookModel.create(body)
     return res.status(201).send({status:true,message:"created successfully",data:book})
-        
 }
     catch (err) {
         
@@ -120,9 +114,6 @@ const getBooks=async function(req,res){
         
         return res.status(200).send({status:true,message:"Books List",data:getBook})
 
-            
-
-        
     }
     catch(err){
         res.status(500).send({msg:err.message})
@@ -130,4 +121,30 @@ const getBooks=async function(req,res){
 
 }
 
-module.exports={createBook,getBooks}
+const getId=async function(req,res){
+    try{
+        let id=req.params.bookId 
+        if(!isValidObjectId(id)){
+            return res.status(400).send({status:false,message:"Book id is not valid"})
+        }
+        
+        let book=await bookModel.findOne({_id:id,isDeleted:false,deletedAt:null})
+        
+        if(!book){ //if no data found then send error message
+            return res.status(404).send({status:false,data:"book not present"})
+        }
+        if(book.reviews==0){
+            Object.assign(book._doc, { reviewsData: [] });
+        }
+        else{
+            Object.assign(book._doc, { reviewsData: [book.reviews] });
+        }
+    
+        return res.status(200).send({status:true,message:"Book List",data:book})
+}
+catch(err){
+    res.status(500).send({status:false,data:err.message})
+}
+}
+
+module.exports={createBook,getBooks, getId}
