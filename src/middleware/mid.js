@@ -9,27 +9,19 @@ const authenticate=async function(req,res,next){
         
         if(!token) return res.status(403).send({status:false,msg:"Token is required"})
         
-        let decodedToken = jwt.verify(token, 'Project1')
+        let decodedToken = jwt.verify(token, 'bookManagement-project3')
         
-        if(decodedToken){
-            req.userId=decodedToken.userId
-            
-            next()
-        }
-        else{
+        if(!decodedToken){
             return res.status(403).send({status:false,message:"Invalid authentication"})
         }
+        req.userId=decodedToken.userId
+            
+            next()
     }
     
-        
-
-
-    
-
 catch(err){
     return res.status(500).send({msg:err.message})
 }
-
 
 }
 
