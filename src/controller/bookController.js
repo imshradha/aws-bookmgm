@@ -147,4 +147,48 @@ catch(err){
 }
 }
 
-module.exports={createBook,getBooks, getId}
+const updateBooks=async function(req,res){
+    try{
+        const reqbody=req.body 
+        let id=req.params.bookId 
+        if(!isValidObjectId(id)){
+            return res.status(400).send({status:false,message:"Book id is not valid"})
+        }
+        
+        let book=await bookModel.findOne({_id:id,isDeleted:false,deletedAt:null})
+
+        if(!book){ //if no data found then send error message
+            return res.status(404).send({status:false,data:"book not present"})
+        }
+        
+        if(!isValidRequestBody(reqbody)){
+            return res.status(400).send({status:true,message:"Please provide paramters to update book"})
+        }
+        const {title,ISBN}=reqbody
+        
+         if(isValid(title)){
+             let validUserId=await bookModel.findOne({title:title})
+             if(validUserId){
+                 return res.status(400).send({status:false,message:"Title already registered"})
+             }
+         }
+        
+        if(isValid(ISBN)){
+            let validISBN=await bookModel.findOne({ISBN:ISBN})
+            if(validISBN){
+                return res.status(400).send({status:false,message:"ISBN already registered"})
+            }
+        }
+ 
+        const bookUpdate=await bookModel.findOneAndUpdate({_id:id},reqbody,{new:true})
+        
+        res.status(200).send({status:true,message:"Updated Successfully",data:bookUpdate})
+
+    }
+    catch(err){
+        res.status(500).send({status:false,msg:err.message})
+    }
+}
+
+
+module.exports={createBook,getBooks, getId, updateBooks}
