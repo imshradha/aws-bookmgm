@@ -21,7 +21,7 @@ const createUser= async function (req, res) {
     try {
         let body = req.body
         if(!isValidRequestBody(body)){
-            return res.status(400).send({status:false,message:"Invalid request parameters please provide author details"})
+            return res.status(400).send({status:false,message:"Invalid request parameters please provide user details"})
         }
         const {title,name,phone,email,password,address}=req.body
         if(!isValid(title)){
@@ -73,12 +73,12 @@ const createUser= async function (req, res) {
         if (!schema.validate(password)) {
             return res.status(400).send({ status: false, msg: "length of password should be 8-15 characters" })
         }
-        if(typeof address.pincode==NaN){
+        if(!(/^\d{6}$/).test(address.pincode)){
             res.status(400).send({status:false,message:"Only number is  allowed"})
         }
-        if (Object.values(address.pincode).length < 6 || (address.pincode).length > 6) {
-            return res.status(400).send({ status: false, msg: "Pincode should be of 6 digits" })
-        }
+        // if (Object.values(address.pincode).length < 6 || (address.pincode).length > 6) {
+        //     return res.status(400).send({ status: false, msg: "Pincode should be of 6 digits" })
+        // }
          
         if (!/^[a-zA-Z]+$/.test(address.city)) {
             return res.status(400).send({ status: false, message: "City name can only be alphabetically" });
@@ -113,7 +113,7 @@ const loginUser = async function (req, res) {
           .status(400)
           .send({ status: false, msg: "please provide password" });
       }
-      // ADD PASSWORD VALIDATOR
+      
   
       const findEmailAndPassword = await userModel.findOne({email: email,password:password });
       if (!findEmailAndPassword) {
@@ -134,7 +134,7 @@ const loginUser = async function (req, res) {
           }, 'bookManagement-project3')
         res
           .status(200)
-          .send({ msg: "user login sucessfully", token:token });
+          .send({status:true, msg: "user login sucessfully", token:token });
       }
     } catch (err) {
       console.log(err);
