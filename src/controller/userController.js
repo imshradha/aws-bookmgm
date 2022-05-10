@@ -66,11 +66,8 @@ const createUser= async function (req, res) {
         if (!schema.validate(password)) {
             return res.status(400).send({ status: false, msg: "length of password should be 8-15 characters" })
         }
-<<<<<<< HEAD
         if(!(/^\d{6}$/).test(address.pincode)){
-=======
         if(isNaN(address.pincode)){ //typeof NaN--not working
->>>>>>> c155aee5744ae5ad99294b3161091dbc5e4cdcb5
             res.status(400).send({status:false,message:"Only number is  allowed"})
         }
         // if (Object.values(address.pincode).length < 6 || (address.pincode).length > 6) {
@@ -83,10 +80,12 @@ const createUser= async function (req, res) {
         const user=await userModel.create(body)
         res.status(201).send({status:true,message:"created successfully",data:user})
     }
+  }
     catch (err) {
         res.status(500).send({ status:false, data: err.message })
     }
 }
+  
 
 const loginUser = async function (req, res) {
     try {
@@ -119,13 +118,9 @@ const loginUser = async function (req, res) {
             iat: Math.floor(Date.now() / 1000),
             exp: Math.floor(Date.now() / 1000) + 10*60*60
           }, 'bookManagement-project3')
-<<<<<<< HEAD
         res
           .status(200)
           .send({status:true, msg: "user login sucessfully", token:token });
-=======
-        res.status(200).send({ msg: "user login sucessfully", token:token });
->>>>>>> c155aee5744ae5ad99294b3161091dbc5e4cdcb5
       }
     } catch (err) {
       console.log(err);
