@@ -66,13 +66,10 @@ const createUser= async function (req, res) {
         if (!schema.validate(password)) {
             return res.status(400).send({ status: false, msg: "length of password should be 8-15 characters" })
         }
-        if(!(/^\d{6}$/).test(address.pincode)){
-        if(isNaN(address.pincode)){ //typeof NaN--not working
-            res.status(400).send({status:false,message:"Only number is  allowed"})
+
+        if(!(/^[1-9][0-9]{5}$/).test(address.pincode)){ 
+            return res.status(400).send({status:false,message:"Incorrect pincode"})
         }
-        // if (Object.values(address.pincode).length < 6 || (address.pincode).length > 6) {
-        //     return res.status(400).send({ status: false, msg: "Pincode should be of 6 digits" })
-        // }
          
         if (!/^[a-zA-Z ]+$/.test(address.city)) {
             return res.status(400).send({ status: false, message: "City name can only be alphabetically" });
@@ -80,7 +77,7 @@ const createUser= async function (req, res) {
         const user=await userModel.create(body)
         res.status(201).send({status:true,message:"created successfully",data:user})
     }
-  }
+  
     catch (err) {
         res.status(500).send({ status:false, data: err.message })
     }
