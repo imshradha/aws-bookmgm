@@ -1,8 +1,8 @@
 const mongoose = require("mongoose")
 const bookModel = require("../model/bookModel.js")
 const userModel = require("../model/userModel")
-const moment = require("moment")
 const reviewModel = require("../model/reviewModel.js")
+const moment = require("moment")
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false
     if (typeof value === "string" && value.trim().length === 0) return false
@@ -15,15 +15,15 @@ const isValidObjectId = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 }
 
-
 const createBook = async function (req, res) {
     try {
         let body = req.body
+        const userToken=req.userId
 
         if (!isValidRequestBody(body)) {
-            return res.status(400).send({ status: false, message: "Invalid request parameters please provide blogs details" })
+            return res.status(400).send({ status: false, message: "Invalid request parameters please provide books details" })
         }
-
+       
         //Added loop for validation
         let required = ["title", "excerpt", "userId", "ISBN", "category", "subcategory", "releasedAt"]
         let keys = Object.keys(body)
@@ -39,7 +39,12 @@ const createBook = async function (req, res) {
             else continue
         }
 
-        let { title, userId, reviews, ISBN, releasedAt } = req.body
+        //Authorization
+        if(body.userId.toString()!==userToken){
+            return res.status(401).send({status:false,message:"Unauthorised access"})
+        }
+
+        let { title, userId, ISBN, releasedAt } = req.body
         const uniqueTitle = await bookModel.findOne({ title: title })
         if (uniqueTitle) {
             return res.status(400).send({ status: false, message: "Title is already registered" })
@@ -75,7 +80,6 @@ const createBook = async function (req, res) {
 
 const getBooks = async function (req, res) {
     try {
-        const query = { isDeleted: false, deletedAt: null }
         const getQuery = req.query
         if (isValidRequestBody(getQuery)) {
             const { userId, category, subcategory } = getQuery
@@ -91,7 +95,7 @@ const getBooks = async function (req, res) {
                 query.subcategory = { $all: subcategoryArr }    //selects the documents where the value of a field is an array that contains all the specified elements
             }
         }
-        const getBook = await bookModel.find(query).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+        const getBook = await bookModel.find({isDeleted: false, deletedAt: null}).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
         if (getBook.length === 0) {
             return res.status(404).send({ status: false, message: "No books found" })
         }
@@ -148,8 +152,15 @@ const updateBooks=async function(req,res){
     try{
         const reqbody=req.body 
         let id=req.params.bookId 
+        const userToken=req.userId
         if(!isValidObjectId(id)){
             return res.status(400).send({status:false,message:"Book id is not valid"})
+        }
+        if(!isValidObjectId(userToken)){
+             return res.status(400).send({status:false,message:"User id is not valid"})
+        }
+        if(book.userId.toString()!==userToken){
+            return res.status(401).send({status:false,message:"Unauthorised access"})
         }
         
         let book=await bookModel.findOne({_id:id,isDeleted:false,deletedAt:null})
@@ -189,11 +200,16 @@ const updateBooks=async function(req,res){
 const deleteId=async function(req,res){
     try{
         let id=req.params.bookId 
-        
+        const userToken=req.userId
         if(!isValidObjectId(id)){
             return res.status(400).send({status:false,message:"Book id is not valid"})
         }
-        
+         if(!isValidObjectId(userToken)){
+             return res.status(400).send({status:false,message:"User id is not valid"})
+        }
+        if(book.userId.toString()!==userToken){
+            return res.status(401).send({status:false,message:"Unauthorised access"})
+        }
         
         let book=await bookModel.findOne({_id:id,isDeleted:false,deletedAt:null})
 

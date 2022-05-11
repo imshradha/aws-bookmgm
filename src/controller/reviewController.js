@@ -1,6 +1,7 @@
 const mongoose=require("mongoose")
 const bookModel = require("../model/bookModel")
 const reviewModel = require("../model/reviewModel")
+
 const isValidRequestBody=function(body){
     return Object.keys(body).length>0 
 }
@@ -13,7 +14,6 @@ const isValidObjectId=function(objectId){
     return mongoose.Types.ObjectId.isValid(objectId)
 }
 
-
 const createReview=async function(req,res){
     try{
     const {bookId}=req.params 
@@ -22,7 +22,6 @@ const createReview=async function(req,res){
     }
     if(!isValidRequestBody(req.body)){
         return res.status(400).send({status:false,message:"Please enter required parameters"})
-        
     }
     let validBook=await bookModel.findOne({_id:bookId,isDeleted:false,deletedAt:null})
     if(!validBook){
@@ -30,24 +29,23 @@ const createReview=async function(req,res){
     }
     const{rating,reviewedBy}=req.body 
     if(!isValid(rating)){
-        return res.status(400).send({status:false,message:"Please enter rating and rating must be no"})
+        return res.status(400).send({status:false,message:"Please enter rating"})
     }
-    if(rating<1 || rating >5){
-        return res.status(400).send({status:false,message:"Ratings can be in 1 to 5"})
+    if(/^[1-5]{1}$/){
+        return res.status(400).send({status:false,message:"Rate between 1-5"})
     }
     
     if(!isValid(reviewedBy)){
-        return res.status(400).send({status:false,message:"Please enter rating and rating must be no"})
+        return res.status(400).send({status:false,message:"Please enter reviewer's name"})
     }
-    validBook.reviews=validBook.reviews+1 
-
+    validBook.reviews=validBook.reviews + 1 
     validBook.save()
+
     let body=req.body 
     body.bookId=bookId
     
     let review1=await reviewModel.create(body)
     let findReview=await reviewModel.find({bookId:bookId,isDeleted:false,deletedAt:null})
-    console.log(findReview)
     
     Object.assign(validBook._doc, { reviewsData: [findReview] });
     
@@ -56,13 +54,13 @@ const createReview=async function(req,res){
 catch(err){
     return res.status(500).send({status:false,message:err.message})
 }
-
-
 }
+
 const updateReview=async function(req,res){
        try{
         const {bookId,reviewId}=req.params 
         let body=req.body
+
         if(!(isValidObjectId(bookId))){
             return res.status(400).send({status:false,message:"Not a  valid bookId"})
         }
@@ -88,15 +86,7 @@ const updateReview=async function(req,res){
      catch(err){
          return res.status(500).send({status:false,message:err.message})
      }
-
 }
-
-
-
-
-
-
-
 
 const deleteReview=async function(req,res){
     try{
@@ -116,8 +106,10 @@ const deleteReview=async function(req,res){
         return res.status(404).send({status:false,message:"NO book found"})
     }
     await reviewModel.findOneAndUpdate({_id:reviewId},{$set:{isDeleted:true}})
+
     validBook.reviews=validBook.reviews-1
     validBook.save()
+    
     return res.status(200).send({status:true,message:"Review deleted and book's review updated successfully"})
 }
 catch(err){

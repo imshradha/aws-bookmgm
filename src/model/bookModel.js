@@ -1,17 +1,18 @@
-const mongoose=require("mongoose")
-//const moment=require("moment")
-const bookSchema=new mongoose.Schema({
-    title:{type:String,required:true,unique:true,trim:true},
-    excerpt:{type:String,required:true,trim:true},
-    userId:{type:mongoose.Schema.Types.ObjectId,ref:'User'},
-    ISBN:{type:String,required:true,unique:true,trim:true},
-    category:{type:String,required:true},
-    subcategory:{type:[ String ],required:true},
-    reviews:{type:Number,default:0},
-    deletedAt:{type:Date,default:null},
-    isDeleted:{type:Boolean,default:false},
-    releasedAt:{type:Date,required:true}
+const mongoose = require("mongoose");
 
-
-},{timestamps:true})
-module.exports=mongoose.model("Book",bookSchema)
+const bookSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, unique: true, trim: true },
+    excerpt: { type: String, required: true, trim: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ISBN: { type: String, required: true, unique: true, trim: true },
+    category: { type: String, required: true },
+    subcategory: { type: [String], required: true },
+    reviews: { type: Number, default: 0 },
+    deletedAt: { type: Date, default: null },
+    isDeleted: { type: Boolean, default: false },
+    releasedAt: { type: Date, required: true },
+  },
+  { timestamps: true });
+  
+module.exports = mongoose.model("Book", bookSchema);
