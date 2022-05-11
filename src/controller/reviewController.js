@@ -41,7 +41,7 @@ const createReview=async function(req,res){
         return res.status(400).send({status:false,message:"Please enter reviewer's name"})
     }
     validBook.reviews=validBook.reviews + 1 
-    validBook.save()
+    validBook.save()    //save() method INSERTs an object in the database
 
     let body=req.body 
     body.bookId=bookId
@@ -123,7 +123,7 @@ const deleteReview=async function(req,res){
     await reviewModel.findOneAndUpdate({_id:reviewId},{$set:{isDeleted:true}})
 
     validBook.reviews=validBook.reviews-1
-    validBook.save()
+    validBook.save()    //save() method INSERTs an object in the database
 
     return res.status(200).send({status:true,message:"Review deleted and book's review updated successfully"})
 }

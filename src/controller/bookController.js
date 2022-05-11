@@ -177,7 +177,7 @@ const updateBooks=async function(req,res){
         const {title,ISBN}=reqbody
         
          if(isValid(title)){
-             let validUserId=await bookModel.findOne({title:title})
+             let validUserId=await bookModel.findOne({title:title, isDeleted: false, deletedAt: null})
              if(validUserId){
                  return res.status(400).send({status:false,message:"Title already registered"})
              }
