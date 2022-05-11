@@ -3,6 +3,7 @@ const bookModel = require("../model/bookModel.js")
 const userModel = require("../model/userModel")
 const reviewModel = require("../model/reviewModel.js")
 const moment = require("moment")
+const { query } = require("express")
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false
     if (typeof value === "string" && value.trim().length === 0) return false
@@ -81,6 +82,7 @@ const createBook = async function (req, res) {
 const getBooks = async function (req, res) {
     try {
         const getQuery = req.query
+        let query= {isDeleted: false, deletedAt: null}
         if (isValidRequestBody(getQuery)) {
             const { userId, category, subcategory } = getQuery
             if (isValid(userId) && isValidObjectId(userId)) {
@@ -95,7 +97,7 @@ const getBooks = async function (req, res) {
                 query.subcategory = { $all: subcategoryArr }    //selects the documents where the value of a field is an array that contains all the specified elements
             }
         }
-        const getBook = await bookModel.find({isDeleted: false, deletedAt: null}).select({ title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+        const getBook = await bookModel.find(query)
         if (getBook.length === 0) {
             return res.status(404).send({ status: false, message: "No books found" })
         }
@@ -159,14 +161,14 @@ const updateBooks=async function(req,res){
         if(!isValidObjectId(userToken)){
              return res.status(400).send({status:false,message:"User id is not valid"})
         }
-        if(book.userId.toString()!==userToken){
-            return res.status(401).send({status:false,message:"Unauthorised access"})
-        }
         
         let book=await bookModel.findOne({_id:id,isDeleted:false,deletedAt:null})
 
         if(!book){ //if no data found then send error message
             return res.status(404).send({status:false,data:"book not present"})
+        }
+        if(book.userId.toString()!==userToken){
+            return res.status(401).send({status:false,message:"Unauthorised access"})
         }
         
         if(!isValidRequestBody(reqbody)){
@@ -207,14 +209,14 @@ const deleteId=async function(req,res){
          if(!isValidObjectId(userToken)){
              return res.status(400).send({status:false,message:"User id is not valid"})
         }
-        if(book.userId.toString()!==userToken){
-            return res.status(401).send({status:false,message:"Unauthorised access"})
-        }
         
         let book=await bookModel.findOne({_id:id,isDeleted:false,deletedAt:null})
 
         if(!book){ //if no data found then send error message
             return res.status(404).send({status:false,data:"book not present"})
+        }
+        if(book.userId.toString()!==userToken){
+            return res.status(401).send({status:false,message:"Unauthorised access"})
         }
         
         await bookModel.findOneAndUpdate({_id:id},{$set:{isDeleted:true,deletedAt:new Date()}})

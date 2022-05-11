@@ -168,7 +168,6 @@ const loginUser = async function (req, res) {
         .send({ status: true, msg: "user login sucessfully", token: token });
     }
   } catch (err) {
-    console.log(err);
     res.status(500).send({ status: false, data: err.message });
   }
 };
