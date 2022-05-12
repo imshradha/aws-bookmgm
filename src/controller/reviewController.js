@@ -17,6 +17,8 @@ const isValidObjectId=function(objectId){
 const createReview=async function(req,res){
     try{
     const {bookId}=req.params 
+ 
+  
 
     let validBook=await bookModel.findOne({_id:bookId,isDeleted:false,deletedAt:null})
     if(!validBook){
@@ -33,7 +35,7 @@ const createReview=async function(req,res){
     if(!isValid(rating)){
         return res.status(400).send({status:false,message:"Please enter rating"})
     }
-    if(!(/^[1-5]{1}$/).test(rating)){
+    if(!(/(^[1-5]{1}\.[1-5]|^[1-5]{1}$)/).test(rating)){
         return res.status(400).send({status:false,message:"Rate between 1-5"})
     }
     

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const bookSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, unique: true, trim: true },
+    title: { type: String, required: true, trim: true },
     excerpt: { type: String, required: true, trim: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     ISBN: { type: String, required: true, unique: true, trim: true },
