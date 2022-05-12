@@ -9,12 +9,14 @@ const authenticate=async function(req,res,next){
         
         if(!token) return res.status(403).send({status:false,msg:"Token is required"})
         
-        let decodedToken =await jwt.verify(token, 'bookManagement-project3')
+        let decodedToken =await jwt.verify(token, 'bookManagement-project3',{ignoreExpiration:true})//error 500
         
         if(!decodedToken){
             return res.status(403).send({status:false,message:"Invalid authentication"})
         }
-        req.userId=decodedToken.userId
+        let exptoken=decodedToken.exp
+        if((exptoken*1000)<Date.now())return res.status(400).send({status:false,msg:"token exp"})
+        req.userId=decodedToken.userId//error 400
             
             next()
     }
