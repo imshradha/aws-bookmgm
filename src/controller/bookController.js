@@ -3,7 +3,7 @@ const bookModel = require("../model/bookModel.js")
 const userModel = require("../model/userModel")
 const reviewModel = require("../model/reviewModel.js")
 const moment = require("moment")
-const { query } = require("express")
+
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false
     if (typeof value === "string" && value.trim().length === 0) return false
@@ -46,7 +46,9 @@ const createBook = async function (req, res) {
         }
 
         let { title, userId, ISBN, releasedAt } = req.body
-        const uniqueTitle = await bookModel.findOne({ title: title })
+        const uniqueTitle = await bookModel.findOne({ title: title}).collation(
+            { locale: 'en', strength: 2 }
+          );
         if (uniqueTitle) {
             return res.status(400).send({ status: false, message: "Title is already registered" })
         }
@@ -174,10 +176,11 @@ const updateBooks=async function(req,res){
         if(!isValidRequestBody(reqbody)){
             return res.status(400).send({status:true,message:"Please provide paramters to update book"})
         }
+        
         const {title,ISBN}=reqbody
         
          if(isValid(title)){
-             let validUserId=await bookModel.findOne({title:title, isDeleted: false, deletedAt: null})
+             let validUserId=await bookModel.findOne({title:title})
              if(validUserId){
                  return res.status(400).send({status:false,message:"Title already registered"})
              }
@@ -221,8 +224,6 @@ const deleteId=async function(req,res){
         
         await bookModel.findOneAndUpdate({_id:id},{$set:{isDeleted:true,deletedAt:new Date()}})
         return res.status(200).send({status:true,message:"Blog deleted succesfully"})
-    
-    
 }
 catch(err){
     res.status(500).send({status:false,data:err.message})
