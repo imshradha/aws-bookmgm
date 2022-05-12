@@ -115,8 +115,7 @@ const loginUser = async function (req, res) {
         
         const token= await jwt.sign({
             userId: userId,
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 10*60*60
+            expiresIn:"24hr",
           }, 'bookManagement-project3')
         res
           .status(200)
