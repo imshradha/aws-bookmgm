@@ -101,8 +101,6 @@ const createBook = async function (req, res) {
         .send({ status: false, message: "ISBN is already registered" });
     }
 
-    
-
     const isUser = await userModel.findById(userId);
     if (!isUser) {
       return res
@@ -172,6 +170,7 @@ const getBooks = async function (req, res) {
     res.status(500).send({ msg: err.message });
   }
 };
+
 const getId = async function (req, res) {
   try {
     let id = req.params.bookId;
@@ -230,8 +229,6 @@ const updateBooks = async function (req, res) {
         .send({ status: false, message: "Unauthorised access" });
     }
     
-    
-
     if (!isValidRequestBody(reqbody)) {
       return res.status(400).send({
         status: true,
@@ -309,7 +306,6 @@ const deleteId = async function (req, res) {
       return res.status(400).send({status:false,message:"Please enter valid userId"})
     }
     
-    
     let book = await bookModel.findOne({
       _id: id,
       isDeleted: false
@@ -325,8 +321,6 @@ const deleteId = async function (req, res) {
         .send({ status: false, message: "Unauthorised access" });
     }
     
-    
-
     await bookModel.findOneAndUpdate(
       { _id: id },
       { $set: { isDeleted: true, deletedAt: new Date() } }

@@ -114,7 +114,6 @@ const deleteReview=async function(req,res){
         return res.status(400).send({status:false,message:"Please enter valid reviewId"})
     }
 
-
     const validBook=await bookModel.findOne({_id:bookId,isDeleted:false})
     if(!validBook){
         return res.status(404).send({status:false,message:"NO book found"})

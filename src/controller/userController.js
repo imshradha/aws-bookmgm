@@ -114,8 +114,6 @@ const createUser = async function (req, res) {
         .send({ status: false, message: "Incorrect pincode" });
     }
   
-  
-  
     if (address.city && (!/^[a-zA-Z ]+$/.test(address.city))) {
       return res
         .status(400)
