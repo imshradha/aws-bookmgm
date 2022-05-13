@@ -4,7 +4,7 @@ const passwordValidator = require("password-validator");
 const userModel = require("../model/userModel");
 
 const isValidTitle = function (title) {
-  return ["Mr", "Miss", "Mrs", "Master"].indexOf(title) !== -1;
+  return ["Mr", "Miss", "Mrs"].indexOf(title) !== -1;
 };
 
 const isValid = function (value) {
@@ -19,8 +19,8 @@ const isValidRequestBody = function (body) {
 const createUser = async function (req, res) {
   try {
     let body = req.body;
-    if(req.query ){
-      return res.status(400).send({status:false,msg:"filtering nt allow"})
+    if(Object.keys(req.query).length!==0 ){
+      return res.status(400).send({status:false,msg:"filtering not allow"})
     }
 
     if (!isValidRequestBody(body)) {
@@ -100,14 +100,23 @@ const createUser = async function (req, res) {
           msg: "length of password should be 8-15 characters",
         });
     }
+    
+    //ADDRESS SHOULD BE IN OBJECT
+    if(address){
+      if(typeof(address) !=='object'){
+        
+        return res.status(400).send({status:false,message:"address should be in object form"})
+      }
 
-    if (!/^[1-9][0-9]{5}$/.test(address.pincode)) {
+    if (address.pincode && (!/^[1-9][0-9]{5}$/.test(address.pincode))) {
       return res
         .status(400)
         .send({ status: false, message: "Incorrect pincode" });
     }
-
-    if (!/^[a-zA-Z ]+$/.test(address.city)) {
+  
+  
+  
+    if (address.city && (!/^[a-zA-Z ]+$/.test(address.city))) {
       return res
         .status(400)
         .send({
@@ -115,6 +124,8 @@ const createUser = async function (req, res) {
           message: "City name can only be alphabetically",
         });
     }
+  }
+  
     const user = await userModel.create(body);
     res
       .status(201)
@@ -125,51 +136,12 @@ const createUser = async function (req, res) {
 };
 
 const loginUser = async function (req, res) {
-<<<<<<< HEAD
-    try {
-      const requestBody = req.body;
-      if (!isValidRequestBody(requestBody)) {
-        return res.status(400).send({ status: false, msg: "please provide data to signIn" });
-      }
-      const { email, password } = requestBody;
-  
-      if (!isValid(email)) {
-        return res.status(400).send({ status: false, msg: "please provide email" });
-      }
-      if (!isValid(password)) {
-        return res.status(400).send({ status: false, msg: "please provide password" });
-      }
-      
-  
-      const findEmailAndPassword = await userModel.findOne({email: email,password:password });
-      if (!findEmailAndPassword) {
-        return res.status(401).send({ status: false, msg: "Please provide valid credentials" }); //401- for unauthorized--it lacks valid authentication credentials
-      }
-  
-      const userId=findEmailAndPassword._id
-  
-      const data = { email, password };
-      if (data) {
-        
-        const token= await jwt.sign({
-            userId: userId,
-            expiresIn:"24hr",
-          }, 'bookManagement-project3')
-        res
-          .status(200)
-          .send({status:true, msg: "user login sucessfully", token:token });
-      }
-    } catch (err) {
-      console.log(err);
-      res.status(500).send({ status: false, data: err.message });
-=======
   try {
     const requestBody = req.body;
     if (!isValidRequestBody(requestBody)) {
       return res
         .status(400)
         .send({ status: false, msg: "please provide data to signIn" });
->>>>>>> 784c9cc6666028f893c08a0453878e482beea65b
     }
     const { email, password } = requestBody;
 
@@ -198,18 +170,18 @@ const loginUser = async function (req, res) {
 
     const data = { email, password };
     if (data) {
-      const token = await jwt.sign(
+      const token =jwt.sign(
         {
-          userId: userId,
-        expiresIn:"24hr"
+          userId: userId
+        
         },
-        "bookManagement-project3"
+        "bookManagement-project3",{expiresIn:"24hr"}
       );
       res
         .status(200)
         .send({ status: true, msg: "user login sucessfully", token: token });
     }
-  } catch (err) {
+  }catch (err) {
     res.status(500).send({ status: false, data: err.message });
   }
 };
