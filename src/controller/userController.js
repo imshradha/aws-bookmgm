@@ -4,7 +4,7 @@ const passwordValidator = require("password-validator");
 const userModel = require("../model/userModel");
 
 const isValidTitle = function (title) {
-  return ["Mr", "Miss", "Mrs", "Master"].indexOf(title) !== -1;
+  return ["Mr", "Miss", "Mrs"].indexOf(title) !== -1;
 };
 
 const isValid = function (value) {
@@ -19,8 +19,8 @@ const isValidRequestBody = function (body) {
 const createUser = async function (req, res) {
   try {
     let body = req.body;
-    if(req.query ){
-      return res.status(400).send({status:false,msg:"filtering nt allow"})
+    if(Object.keys(req.query).length!==0 ){
+      return res.status(400).send({status:false,msg:"filtering not allow"})
     }
 
     if (!isValidRequestBody(body)) {
@@ -100,14 +100,23 @@ const createUser = async function (req, res) {
           msg: "length of password should be 8-15 characters",
         });
     }
+    
+    //ADDRESS SHOULD BE IN OBJECT
+    if(address){
+      if(typeof(address) !=='object'){
+        
+        return res.status(400).send({status:false,message:"address should be in object form"})
+      }
 
-    if (!/^[1-9][0-9]{5}$/.test(address.pincode)) {
+    if (address.pincode && (!/^[1-9][0-9]{5}$/.test(address.pincode))) {
       return res
         .status(400)
         .send({ status: false, message: "Incorrect pincode" });
     }
-
-    if (!/^[a-zA-Z ]+$/.test(address.city)) {
+  
+  
+  
+    if (address.city && (!/^[a-zA-Z ]+$/.test(address.city))) {
       return res
         .status(400)
         .send({
@@ -115,6 +124,8 @@ const createUser = async function (req, res) {
           message: "City name can only be alphabetically",
         });
     }
+  }
+  
     const user = await userModel.create(body);
     res
       .status(201)
@@ -159,18 +170,18 @@ const loginUser = async function (req, res) {
 
     const data = { email, password };
     if (data) {
-      const token = await jwt.sign(
+      const token =jwt.sign(
         {
-          userId: userId,
-        expiresIn:"24hr"
+          userId: userId
+        
         },
-        "bookManagement-project3"
+        "bookManagement-project3",{expiresIn:"24hr"}
       );
       res
         .status(200)
         .send({ status: true, msg: "user login sucessfully", token: token });
     }
-  } catch (err) {
+  }catch (err) {
     res.status(500).send({ status: false, data: err.message });
   }
 };
