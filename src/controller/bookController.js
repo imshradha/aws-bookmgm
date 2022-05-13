@@ -244,23 +244,21 @@ const updateBooks = async function (req, res) {
     const { title, ISBN, excerpt, releasedAt, reviews, category, subcategory } =
       reqbody;
     if (reviews || category || subcategory) {
-      return res
-        .status(400)
-        .send({
-          status: false,
-          msg: "you can't update reviews,category,subcategory ",
-        });
+      return res.status(400).send({
+        status: false,
+        msg: "you can't update reviews,category,subcategory ",
+      });
     }
 
     const updateBook = {};
 
     if (isValid(title)) {
-      let validUserId = await bookModel.findOne({
-        title: title,
-        isDeleted: false,
-      }).collation(
-        { locale: 'en', strength: 2 }
-      );
+      let validUserId = await bookModel
+        .findOne({
+          title: title,
+          isDeleted: false,
+        })
+        .collation({ locale: "en", strength: 2 });
       if (validUserId) {
         return res
           .status(400)
