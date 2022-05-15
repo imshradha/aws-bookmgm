@@ -2,6 +2,8 @@ const ObjectId=require("mongoose").Types.ObjectId
 const bookModel = require("../model/bookModel")
 const reviewModel = require("../model/reviewModel")
 
+//===================================validation===========================================
+
 const isValidRequestBody=function(body){
     return Object.keys(body).length>0 
 }
@@ -10,6 +12,8 @@ const isValid=function(value){
     if(typeof value==="string" && value.trim().length===0)return false 
     return true
 }
+
+//====================================/books/:bookId/review===============================
 
 
 const createReview=async function(req,res){
@@ -55,6 +59,8 @@ catch(err){
     return res.status(500).send({status:false,message:err.message})
 }
 }
+
+//=======================================/books/:bookId/review/:reviewId==========================
 
 const updateReview=async function(req,res){
        try{
@@ -103,6 +109,8 @@ const updateReview=async function(req,res){
          return res.status(500).send({status:false,message:err.message})
      }
 }
+
+//=========================================/books/:bookId/review/:reviewId==========================
 
 const deleteReview=async function(req,res){
     try{

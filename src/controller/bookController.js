@@ -1,7 +1,6 @@
 const ObjectId=require("mongoose").Types.ObjectId
 const bookModel = require("../model/bookModel.js");
 const userModel = require("../model/userModel");
-
 const reviewModel = require("../model/reviewModel.js");
 const moment = require("moment");
 
@@ -12,12 +11,13 @@ const isValid = function (value) {
   if (typeof value === "string" && value.trim().length === 0) return false;
   return true;
 };
+
 const isValidRequestBody = function (body) {
   return Object.keys(body).length > 0;
 };
 
 
-//=======================================
+//=======================================/books============================================
 
 const createBook = async function (req, res) {
   try {
@@ -124,6 +124,8 @@ const createBook = async function (req, res) {
   }
 };
 
+//=======================================/books===========================================
+
 const getBooks = async function (req, res) {
   try {
     const getQuery = req.query;
@@ -171,6 +173,8 @@ const getBooks = async function (req, res) {
   }
 };
 
+//=========================================/books/:bookId======================================
+
 const getId = async function (req, res) {
   try {
     let id = req.params.bookId;
@@ -201,6 +205,8 @@ const getId = async function (req, res) {
     res.status(500).send({ status: false, data: err.message });
   }
 };
+
+//========================================/books/:bookId=====================================
 
 const updateBooks = async function (req, res) {
   try {
@@ -294,6 +300,8 @@ const updateBooks = async function (req, res) {
     res.status(500).send({ status: false, msg: err.message });
   }
 };
+
+//===========================================/books/:bookId======================================
 
 const deleteId = async function (req, res) {
   try {

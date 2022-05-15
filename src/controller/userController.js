@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
-
 const passwordValidator = require("password-validator");
 const userModel = require("../model/userModel");
+
+//=========================================Validation==============================================
 
 const isValidTitle = function (title) {
   return ["Mr", "Miss", "Mrs"].indexOf(title) !== -1;
@@ -12,24 +13,27 @@ const isValid = function (value) {
   if (typeof value === "string" && value.trim().length === 0) return false;
   return true;
 };
+
 const isValidRequestBody = function (body) {
   return Object.keys(body).length > 0;
 };
 
+//==========================================/register===============================================
+
 const createUser = async function (req, res) {
   try {
     let body = req.body;
-    if(Object.keys(req.query).length!==0 ){
-      return res.status(400).send({status:false,msg:"filtering not allow"})
+    if (Object.keys(req.query).length !== 0) {
+      return res
+        .status(400)
+        .send({ status: false, msg: "filtering not allow" });
     }
 
     if (!isValidRequestBody(body)) {
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: "Invalid request parameters please provide user details",
-        });
+      return res.status(400).send({
+        status: false,
+        message: "Invalid request parameters please provide user details",
+      });
     }
     //Added loop for validation
     let required = ["title", "name", "phone", "email", "password"];
@@ -80,50 +84,46 @@ const createUser = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Email should be valid" });
     }
+    
     const isEmailPresent = await userModel.findOne({ email: email });
     if (isEmailPresent) {
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: "email address is already registered",
-        });
+      return res.status(400).send({
+        status: false,
+        message: "email address is already registered",
+      });
     }
 
     const schema = new passwordValidator();
     schema.is().min(8).max(15);
     if (!schema.validate(password)) {
-      return res
-        .status(400)
-        .send({
-          status: false,
-          msg: "length of password should be 8-15 characters",
-        });
+      return res.status(400).send({
+        status: false,
+        msg: "length of password should be 8-15 characters",
+      });
     }
-    
+
     //ADDRESS SHOULD BE IN OBJECT
-    if(address){
-      if(typeof(address) !=='object'){
-        
-        return res.status(400).send({status:false,message:"address should be in object form"})
+    if (address) {
+      if (typeof address !== "object") {
+        return res
+          .status(400)
+          .send({ status: false, message: "address should be in object form" });
       }
 
-    if (address.pincode && (!/^[1-9][0-9]{5}$/.test(address.pincode))) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Incorrect pincode" });
-    }
-  
-    if (address.city && (!/^[a-zA-Z ]+$/.test(address.city))) {
-      return res
-        .status(400)
-        .send({
+      if (address.pincode && !/^[1-9][0-9]{5}$/.test(address.pincode)) {
+        return res
+          .status(400)
+          .send({ status: false, message: "Incorrect pincode" });
+      }
+
+      if (address.city && !/^[a-zA-Z ]+$/.test(address.city)) {
+        return res.status(400).send({
           status: false,
           message: "City name can only be alphabetically",
         });
+      }
     }
-  }
-  
+
     const user = await userModel.create(body);
     res
       .status(201)
@@ -132,6 +132,8 @@ const createUser = async function (req, res) {
     res.status(500).send({ status: false, data: err.message });
   }
 };
+
+//=======================================/login================================================
 
 const loginUser = async function (req, res) {
   try {
@@ -168,19 +170,20 @@ const loginUser = async function (req, res) {
 
     const data = { email, password };
     if (data) {
-      const token =jwt.sign(
+      const token = jwt.sign(
         {
-          userId: userId
-        
+          userId: userId,
         },
-        "bookManagement-project3",{expiresIn:"24hr"}
+        "bookManagement-project3",
+        { expiresIn: "24hr" }
       );
       res
         .status(200)
         .send({ status: true, msg: "user login sucessfully", token: token });
     }
-  }catch (err) {
+  } catch (err) {
     res.status(500).send({ status: false, data: err.message });
   }
 };
+
 module.exports = { createUser, loginUser };
