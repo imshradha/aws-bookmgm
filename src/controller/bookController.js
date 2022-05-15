@@ -65,7 +65,7 @@ const createBook = async function (req, res) {
           .send({ status: false, msg: `Required field - ${property}` });
       else continue;
     }
-    if(!ObjectId.isValid(userId)){
+    if(!ObjectId.isValid(body.userId)){
       return res.status(400).send({status:false,message:"Please enter valid userId"})
   }
 
