@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-
+const mongoose = require("mongoose");//importing mongoose(object data modeling library)
+//creating structure of documents
 const bookSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
@@ -16,4 +16,4 @@ const bookSchema = new mongoose.Schema(
   { timestamps: true });
   
 
-module.exports = mongoose.model("Book", bookSchema);
+module.exports = mongoose.model("Book", bookSchema);//naming new collection made Schema

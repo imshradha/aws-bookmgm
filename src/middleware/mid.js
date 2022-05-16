@@ -1,4 +1,4 @@
-const jwt=require("jsonwebtoken");
+const jwt=require("jsonwebtoken");//(package to generate token)
 
 const authenticate=async function(req,res,next){
     try{
@@ -9,7 +9,7 @@ const authenticate=async function(req,res,next){
         
         if(!token) return res.status(403).send({status:false,msg:"Token is required"})
         
-        let decodedToken =jwt.verify(token, 'bookManagement-project3',{ignoreExpiration:true})//error 500
+        let decodedToken =jwt.verify(token, 'bookManagement-project3',{ignoreExpiration:true})//error 500//.verify(decode and validat too)=.decode(only decode)
         
         if(!decodedToken){
             return res.status(403).send({status:false,message:"Invalid authentication"})
@@ -28,3 +28,5 @@ catch(err){
 }
 
 module.exports.authenticate=authenticate
+
+//jsonwebtoken is used to authenticate a particular data between to party(to encrypted)

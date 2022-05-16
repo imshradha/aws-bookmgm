@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-
+const mongoose = require("mongoose");//importing mongoose(object data modeling library)
+//creating structure of documents
 const reviewSchema = new mongoose.Schema({
   bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Book" },
   reviewedBy: { type: String, required: true, default: "Guest" },
@@ -8,4 +8,4 @@ const reviewSchema = new mongoose.Schema({
   review: { type: String },
   isDeleted: { type: Boolean, default: false },
 });
-module.exports = mongoose.model("Review", reviewSchema);
+module.exports = mongoose.model("Review", reviewSchema);//naming new collection made Schema

@@ -35,6 +35,7 @@ const createUser = async function (req, res) {
         message: "Invalid request parameters please provide user details",
       });
     }
+    
     //Added loop for validation
     let required = ["title", "name", "phone", "email", "password"];
     let keys = Object.keys(body);
@@ -46,6 +47,7 @@ const createUser = async function (req, res) {
           .status(400)
           .send({ status: false, msg: `Required field - ${required[i]}` });
     }
+
     //checking for empty values
     for (const property in body) {
       if (
@@ -57,7 +59,7 @@ const createUser = async function (req, res) {
           .send({ status: false, msg: `Required field - ${property}` });
       else continue;
     }
-    const { title, phone, email, password, address } = req.body;
+    const { title, phone, email, password, address } = req.body; //destructuring method
 
     if (!isValidTitle(title)) {
       return res
@@ -103,14 +105,14 @@ const createUser = async function (req, res) {
     }
 
     //ADDRESS SHOULD BE IN OBJECT
-    if (address) {
-      if (typeof address !== "object") {
+    if (address){
+      if (typeof address !== "object"){
         return res
           .status(400)
           .send({ status: false, message: "address should be in object form" });
       }
 
-      if (address.pincode && !/^[1-9][0-9]{5}$/.test(address.pincode)) {
+      if (address.pincode && !/^[1-9][0-9]{5}$/.test(address.pincode)){
         return res
           .status(400)
           .send({ status: false, message: "Incorrect pincode" });
@@ -187,3 +189,7 @@ const loginUser = async function (req, res) {
 };
 
 module.exports = { createUser, loginUser };
+
+//findone:-this will return first document which satisfying this condition(in multiple documents)
+//find:-this will return array 
+//async create promise till then he find await which help fullfile the promise

@@ -1,8 +1,8 @@
-const ObjectId=require("mongoose").Types.ObjectId
+const ObjectId=require("mongoose").Types.ObjectId//calling type for validation
 const bookModel = require("../model/bookModel.js");
 const userModel = require("../model/userModel");
 const reviewModel = require("../model/reviewModel.js");
-const moment = require("moment");
+const moment = require("moment");//package for validating formate (date)
 
 //====================================Validation===========================================
 
@@ -19,7 +19,7 @@ const isValidRequestBody = function (body) {
 
 //=======================================/books============================================
 
-const createBook = async function (req, res) {
+const createBook = async function (req, res){
   try {
     let body = req.body;
     const userToken = req.userId;
@@ -82,13 +82,14 @@ const createBook = async function (req, res) {
       .findOne({
         title: title,
       })
-      .collation({ locale: "en", strength: 2 });
+      .collation({ locale: "en", strength: 2 });//collation:string comparsion
 
     if (uniqueTitle) {
       return res
         .status(400)
         .send({ status: false, message: "Title is already registered" });
     }
+
     if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) {
       return res
         .status(400)
@@ -147,23 +148,10 @@ const getBooks = async function (req, res) {
         query.subcategory = { $all: subcategoryArr }; //selects the documents where the value of a field is an array that contains all the specified elements
       }
     }
-    const getBook = await bookModel.find(query).select({title:1,excerpt:1,userId:1,category:1,releasedAt:1,reviews:1});
+    const getBook = await bookModel.find(query).select({title:1,excerpt:1,userId:1,category:1,releasedAt:1,reviews:1}).sort({title:1})
     if (getBook.length === 0) {
       return res.status(404).send({ status: false, message: "No books found" });
     }
-
-    getBook.sort((a, b) => {
-      let fa = a.title.toLowerCase(),
-        fb = b.title.toLowerCase();
-
-      if (fa < fb) {
-        return -1;
-      }
-      if (fa > fb) {
-        return 1;
-      }
-      return 0;
-    });
 
     return res
       .status(200)
@@ -344,3 +332,10 @@ const deleteId = async function (req, res) {
 };
 
 module.exports = { createBook, getBooks, getId, updateBooks, deleteId };
+
+
+
+
+/*Both functions trigger findOne(), the only difference is how they treat undefined.
+If you use findOne(), you'll see that findOne(undefined) and findOne({ _id: undefined }) are equivalent to findOne({}) and return arbitrary documents.
+However, mongoose translates findById(undefined) into findOne({ _id: null }).*/
