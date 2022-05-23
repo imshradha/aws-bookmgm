@@ -1,32 +1,56 @@
-const ObjectId=require("mongoose").Types.ObjectId//calling type for validation
+const ObjectId=require("mongoose").Types.ObjectId
 const bookModel = require("../model/bookModel.js");
 const userModel = require("../model/userModel");
-const reviewModel = require("../model/reviewModel.js");
-const moment = require("moment");//package for validating formate (date)
 
-//====================================Validation===========================================
+const reviewModel = require("../model/reviewModel.js");
+const moment = require("moment");
+const aws= require("aws-sdk")
 
 const isValid = function (value) {
   if (typeof value === "undefined" || value === null) return false;
   if (typeof value === "string" && value.trim().length === 0) return false;
   return true;
 };
-
 const isValidRequestBody = function (body) {
   return Object.keys(body).length > 0;
 };
+aws.config.update({
+  accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
+    secretAccessKey: "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",
+  region: "ap-south-1"
+})
 
+let uploadFile= async ( file) =>{
+  return new Promise( function(resolve, reject) {
 
-//=======================================/books============================================
+   let s3= new aws.S3({apiVersion: '2006-03-01'});
 
-const createBook = async function (req, res){
+   var uploadParams= {
+       ACL: "public-read",
+       Bucket: "classroom-training-bucket",  //HERE
+       Key: "abc/" + file.originalname, //HERE 
+       Body: file.buffer
+   }
+
+   s3.upload( uploadParams, function (err, data ){
+       if(err) {
+           return reject({"error": err})
+       }
+       console.log(data)
+       console.log("file uploaded succesfully")
+       return resolve(data.Location)
+   })
+
+  })
+}
+
+const createBook = async function (req, res) {
   try {
     let body = req.body;
+    //console.log(body)
+    let files= req.files
     const userToken = req.userId;
 
-    if (Object.keys(req.query).length !== 0) {
-      return res.status(400).send({ status: false, msg: "filtering not allow" });
-    }
 
     if (!isValidRequestBody(body)) {
       return res.status(400).send({
@@ -35,16 +59,15 @@ const createBook = async function (req, res){
       });
     }
 
-    //Added loop for validation
-    let required = [
-      "title",
-      "excerpt",
-      "userId",
-      "ISBN",
-      "category",
-      "subcategory",
-      "releasedAt",
-    ];
+    if(files && files.length>0){
+
+      let uploadedFileURL= await uploadFile( files[0] )
+      body.bookCover = uploadedFileURL
+     
+  }
+  
+
+    let required = ["title","excerpt","userId","ISBN","category","subcategory","releasedAt"];
     let keys = Object.keys(body);
 
     for (let i = 0; i < required.length; i++) {
@@ -54,42 +77,32 @@ const createBook = async function (req, res){
           .status(400)
           .send({ status: false, msg: `Required field - ${required[i]}` });
     }
-    //checking for empty values
+  
     for (const property in body) {
-      if (
-        typeof body[property] == "string" &&
-        body[property].trim().length == 0
-      )
+      if (typeof body[property] == "string" && body[property].trim().length == 0)
         return res
           .status(400)
           .send({ status: false, msg: `Required field - ${property}` });
       else continue;
     }
-    if(!ObjectId.isValid(body.userId)){
+    let { title, userId, ISBN, releasedAt } = req.body;
+    if(!ObjectId.isValid(userId)){
       return res.status(400).send({status:false,message:"Please enter valid userId"})
   }
 
-
-    //Authorization
     if (body.userId.toString() !== userToken) {
       return res
         .status(401)
         .send({ status: false, message: "Unauthorised access" });
     }
 
-    let { title, userId, ISBN, releasedAt } = req.body;
-    const uniqueTitle = await bookModel
-      .findOne({
-        title: title,
-      })
-      .collation({ locale: "en", strength: 2 });//collation:string comparsion
+    const uniqueTitle = await bookModel.findOne({ title: title }).collation({ locale: "en", strength: 2 });
 
     if (uniqueTitle) {
       return res
         .status(400)
         .send({ status: false, message: "Title is already registered" });
     }
-
     if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) {
       return res
         .status(400)
@@ -108,14 +121,12 @@ const createBook = async function (req, res){
         .status(400)
         .send({ status: false, message: "User id not present" });
     }
-    let date1=moment.utc(releasedAt,'YYYY-MM-DD') // UNIVERSAL TIME COORDINATED,IF WE ONLY USE MOMENT SO IT WORK IN LOCAL MODE
+    let date1=moment.utc(releasedAt,'YYYY-MM-DD') 
     if(!date1.isValid()){
-      return res.status(400).send({status:false,message:"Check the date format"})
-      
+      return res.status(400).send({status:false,message:"Check the date format"}) 
     }
     body.releasedAt=date1
     
-
     let book = await bookModel.create(body);
     return res
       .status(201)
@@ -124,6 +135,7 @@ const createBook = async function (req, res){
     return res.status(500).send({ status: false, error: err.message });
   }
 };
+
 
 //=======================================/books===========================================
 
@@ -331,7 +343,7 @@ const deleteId = async function (req, res) {
   }
 };
 
-module.exports = { createBook, getBooks, getId, updateBooks, deleteId };
+module.exports = { createBook, getBooks, getId, updateBooks, deleteId  };
 
 
 

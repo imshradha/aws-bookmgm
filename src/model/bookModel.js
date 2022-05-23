@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");//importing mongoose(object data modeling library)
 //creating structure of documents
 const bookSchema = new mongoose.Schema(
-  {
+  { 
     title: { type: String, required: true, trim: true },
+    bookCover: { type: String},
     excerpt: { type: String, required: true, trim: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     ISBN: { type: String, required: true, unique: true, trim: true },
